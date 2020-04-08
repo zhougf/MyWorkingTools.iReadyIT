@@ -11,7 +11,7 @@
 @See:
 """
 
-import datetime, time, io, sys, os, json, re, string
+import datetime, time, io, sys, os, traceback, json, re, string
 from math import ceil
 from openpyxl import *
 
@@ -37,116 +37,128 @@ def GetSheetName():
 # 根据Excel路径和表名参数，获取该sheet表中的数据，并转化为整理后的二维数组
 def Excel22array(excel_path, sheetTitle):
     list22array = []
-    # 打开文件
-    wb = load_workbook(excel_path)
-    # 打印所有表名
-    # print(wb.sheetnames)
-    for sheet in wb:
-        print(sheet.title)
-    print("\n")
-    # 读取表数据
-    ws = wb[sheetTitle]
-    # ws = wb.get_sheet_by_name(nTitle)
-    # 获取最大行
-    row_max = ws.max_row
-    print(row_max)
-    print("\n")
-    # 获取最大列
-    # con_max = ws.max_column
-    # print(con_max)
-    # 把上面写入数组的内容打印在控制台
-    for m in range(1, row_max + 1):
-        list = []
-        for n in range(1, 14):
-            list.append(ws.cell(row=m, column=n).value)
-        list22array.append(list)
-    for m in range(1, row_max):
-        if list22array[m][1] == None:
-            list22array[m][1] = list22array[m - 1][1]
-            print(m + 1)
-            print(list22array[m][1])
-    print("\n")
+    try:
+        # 打开文件
+        wb = load_workbook(excel_path)
+        # 打印所有表名
+        # print(wb.sheetnames)
+        for sheet in wb:
+            print(sheet.title)
+        print("\n")
+        # 读取表数据
+        ws = wb[sheetTitle]
+        # ws = wb.get_sheet_by_name(nTitle)
+        # 获取最大行
+        row_max = ws.max_row
+        print(row_max)
+        print("\n")
+        # 获取最大列
+        # con_max = ws.max_column
+        # print(con_max)
+        # 把上面写入数组的内容打印在控制台
+        for m in range(1, row_max + 1):
+            list = []
+            for n in range(1, 14):
+                list.append(ws.cell(row=m, column=n).value)
+            list22array.append(list)
+        for m in range(1, row_max):
+            if list22array[m][1] == None:
+                list22array[m][1] = list22array[m - 1][1]
+                print(m + 1)
+                print(list22array[m][1])
+        print("\n")
+    except Exception as e:
+        traceback.print_exc()
     return list22array
 
 
 # 将计划任务的二维数组转化为每个人的当天工作列表和全部当天任务保存到制定位置的文件中
 def Array2DailyString(list22array, nameList, txt_path):
-    dailyString = ""
-    allDailyString = ""
-    todayStr = str(time.strftime('%Y-%m-%d', time.localtime(time.time())))
-    dateMark = "*" + todayStr + "*"
-    if list22array != [] and nameList != []:
-        for m in range(4, 11):
-            if todayStr in str(list22array[1][m]):
-                for k in range(len(nameList)):
-                    iNo = 0
-                    taskStr = ""
-                    for n in range(2, len(list22array)):
-                        if list22array[n][m] != None and nameList[k] in list22array[n][3]:
-                            iNo = iNo + 1
-                            taskStr = taskStr + str(iNo) + "*" + str(list22array[n][1]) + "*" + str(
-                                list22array[n][2]) + "*" + str(format(list22array[n][m], '.0%')) + "\n"
-                    if taskStr != "":
-                        dailyString = dateMark + str(nameList[k]) + "\n" + taskStr
-                        print(dailyString)
-                        allDailyString = allDailyString + dailyString + "\n"
-                        txt_path_and_filename = txt_path + todayStr + str(nameList[k]) + ".txt"
-                        Write2DailyFile(txt_path_and_filename, dailyString)
-    if allDailyString != "":
-        txt_path_and_filename = txt_path + todayStr + "AllDaily.txt"
-        Write2DailyFile(txt_path_and_filename, allDailyString)
-
-
-# 将二维数组转化为用于填写企业微信日报的文本
-def Array2DailyString4QYWX(list22array, projectList, nameList, txt_path):
-    allDailyString = ""
-    todayStr = str(time.strftime('%Y-%m-%d', time.localtime(time.time())))
-    dateMark = "*" + todayStr + "*"
-    if list22array != [] and nameList != []:
-        for m in range(4, 11):
-            if todayStr in str(list22array[1][m]):
-                for k in range(len(nameList)):
-                    iNo = 0
-                    dailyString = ""
-                    for p in range(len(projectList)):
+    try:
+        dailyString = ""
+        allDailyString = ""
+        todayStr = str(time.strftime('%Y-%m-%d', time.localtime(time.time())))
+        dateMark = "*" + todayStr + "*"
+        if list22array != [] and nameList != []:
+            for m in range(4, 11):
+                if todayStr in str(list22array[1][m]):
+                    for k in range(len(nameList)):
+                        iNo = 0
                         taskStr = ""
                         for n in range(2, len(list22array)):
-                            if list22array[n][m] != None and nameList[k] in list22array[n][3] and projectList[p] in \
-                                    list22array[n][1]:
+                            if list22array[n][m] != None and nameList[k] in list22array[n][3]:
                                 iNo = iNo + 1
                                 taskStr = taskStr + str(iNo) + "*" + str(list22array[n][1]) + "*" + str(
                                     list22array[n][2]) + "*" + str(format(list22array[n][m], '.0%')) + "\n"
                         if taskStr != "":
-                            dailyString = dailyString + dateMark + "\n" + taskStr
-                    if dailyString != "":
-                        dailyString = nameList[k] + "\n" + dailyString + "\n"
-                        allDailyString = allDailyString + dailyString
-                        print(dailyString)
-                        txt_path_and_filename = txt_path + todayStr + str(nameList[k]) + ".txt"
-                        Write2DailyFile(txt_path_and_filename, dailyString)
-    if allDailyString != "":
-        txt_path_and_filename = txt_path + todayStr + "AllDaily.txt"
-        Write2DailyFile(txt_path_and_filename, allDailyString)
+                            dailyString = dateMark + str(nameList[k]) + "\n" + taskStr
+                            print(dailyString)
+                            allDailyString = allDailyString + dailyString + "\n"
+                            txt_path_and_filename = txt_path + todayStr + str(nameList[k]) + ".txt"
+                            Write2DailyFile(txt_path_and_filename, dailyString)
+        if allDailyString != "":
+            txt_path_and_filename = txt_path + todayStr + "AllDaily.txt"
+            Write2DailyFile(txt_path_and_filename, allDailyString)
+    except Exception as e:
+        traceback.print_exc()
+
+
+# 将二维数组转化为用于填写企业微信日报的文本
+def Array2DailyString4QYWX(list22array, projectList, nameList, txt_path):
+    try:
+        allDailyString = ""
+        todayStr = str(time.strftime('%Y-%m-%d', time.localtime(time.time())))
+        dateMark = "*" + todayStr + "*"
+        if list22array != [] and nameList != []:
+            for m in range(4, 11):
+                if todayStr in str(list22array[1][m]):
+                    for k in range(len(nameList)):
+                        iNo = 0
+                        dailyString = ""
+                        for p in range(len(projectList)):
+                            taskStr = ""
+                            for n in range(2, len(list22array)):
+                                if list22array[n][m] != None and nameList[k] in list22array[n][3] and projectList[p] in \
+                                        list22array[n][1]:
+                                    iNo = iNo + 1
+                                    taskStr = taskStr + str(iNo) + "*" + str(list22array[n][1]) + "*" + str(
+                                        list22array[n][2]) + "*" + str(format(list22array[n][m], '.0%')) + "\n"
+                            if taskStr != "":
+                                dailyString = dailyString + dateMark + "\n" + taskStr
+                        if dailyString != "":
+                            dailyString = nameList[k] + "\n" + dailyString + "\n"
+                            allDailyString = allDailyString + dailyString
+                            print(dailyString)
+                            txt_path_and_filename = txt_path + todayStr + str(nameList[k]) + ".txt"
+                            Write2DailyFile(txt_path_and_filename, dailyString)
+        if allDailyString != "":
+            txt_path_and_filename = txt_path + todayStr + "AllDaily.txt"
+            Write2DailyFile(txt_path_and_filename, allDailyString)
+    except Exception as e:
+        traceback.print_exc()
 
 
 # 将二维数组转化为用于同步到有道笔记的日报文本
 def Array2DailyString4YDNote(list22array, name):
     dailyString = ""
-    todayStr = str(time.strftime('%Y-%m-%d', time.localtime(time.time())))
-    dateMark = "*" + todayStr + "*"
-    if list22array != [] and name != "":
-        for m in range(4, 11):
-            if todayStr in str(list22array[1][m]):
-                iNo = 0
-                taskStr = ""
-                for n in range(2, len(list22array)):
-                    if list22array[n][m] != None and name in str(list22array[n][3]):
-                        iNo = iNo + 1
-                        taskStr = taskStr + str(iNo) + "*" + str(list22array[n][1]) + "*" + str(
-                            list22array[n][2]) + "*" + str(format(list22array[n][m], '.0%')) + "\n"
-                if taskStr != "":
-                    dailyString = dateMark + "\n" + taskStr
-                    print(dailyString)
+    try:
+        todayStr = str(time.strftime('%Y-%m-%d', time.localtime(time.time())))
+        dateMark = "*" + todayStr + "*"
+        if list22array != [] and name != "":
+            for m in range(4, 11):
+                if todayStr in str(list22array[1][m]):
+                    iNo = 0
+                    taskStr = ""
+                    for n in range(2, len(list22array)):
+                        if list22array[n][m] != None and name in str(list22array[n][3]):
+                            iNo = iNo + 1
+                            taskStr = taskStr + str(iNo) + "*" + str(list22array[n][1]) + "*" + str(
+                                list22array[n][2]) + "*" + str(format(list22array[n][m], '.0%')) + "\n"
+                    if taskStr != "":
+                        dailyString = dateMark + "\n" + taskStr
+                        print(dailyString)
+    except Exception as e:
+        traceback.print_exc()
     return dailyString
 
 
