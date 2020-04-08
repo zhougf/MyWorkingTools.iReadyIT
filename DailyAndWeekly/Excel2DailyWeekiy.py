@@ -1,4 +1,4 @@
-#python
+# python
 # -*- coding:utf-8 -*-
 
 """
@@ -21,9 +21,12 @@ os.environ['NLS_LANG'] = 'Simplified Chinese_CHINA.ZHS16GBK'
 
 
 # 通过当前时间计算出所在当月周次，进而获得需要的Excel表名
-def GetSheetName():
+def GetSheetName(whichWeek):
     num = ['一', '二', '三', '四', '五', '六']
-    dt = datetime.datetime.now()
+    if whichWeek == "this":
+        dt = datetime.datetime.now()
+    if whichWeek == "next":
+        dt = datetime.datetime.now() + datetime.timedelta(days=7)
     first_day = dt.replace(day=1)
     dom = dt.day
     adjusted_dom = dom + first_day.weekday()
@@ -176,13 +179,23 @@ def Post2YDNote(dailyString):
     return is2yd
 
 
+# 将二维数组中有用的信息转化为周报内容并保存到文件中
+def Array2WeeklyString(tw2array, nw2array, txt_path):
+    WeeklyString = ""
+
+
 # 程序执行的入口
 if __name__ == "__main__":
     projectList = ['计划与管理', '技能和业务培训', '海尔项目', '三机O2O', '北汽二期', '摩根华鑫', '瑞穗银行', '宝钢气体', '贝克曼MS-Flow']
     nameList = ['白明晨', '曹珊', '董杰', '李茂清', '王虎林', '王羽超', '杨彦刚', '周光甫']
     excel_path = "/Users/michealzhou/MyDriver/工作/06部门管理/02工作计划与汇报/周报/上海项目计划与周报-20200407.xlsx"  # 设置Excel文件路径
     txt_path = "/Users/michealzhou/Desktop/"  # 设置text文件路径
-    # Array2DailyString(Excel22array(excel_path, GetSheetName()), nameList, txt_path)
-    # Array2DailyString4QYWX(Excel22array(excel_path, GetSheetName()), projectList, nameList, txt_path)
-    if Post2YDNote(Array2DailyString4YDNote(Excel22array(excel_path, GetSheetName()), "周光甫")):
+    thisweekSheetname = GetSheetName("this")
+    nextweekSheetname = GetSheetName("next")
+    tw2array = Excel22array(excel_path, thisweekSheetname)
+    # nw2array = Excel22array(excel_path, nextweekSheetname)
+    # Array2DailyString(excel2array, nameList, txt_path)
+    Array2DailyString4QYWX(tw2array, projectList, nameList, txt_path)
+    # Array2WeeklyString(tw2array, nw2array, txt_path)
+    if Post2YDNote(Array2DailyString4YDNote(tw2array, "周光甫")):
         print("本次日报的任务内容同步到有道笔记，已经成功完成！")
