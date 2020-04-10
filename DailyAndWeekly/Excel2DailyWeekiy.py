@@ -81,7 +81,8 @@ def Array2DailyString(list22array, nameList, txt_path):
                     iNo = 0
                     taskStr = ""
                     for n in range(2, len(list22array)):
-                        if list22array[n][m] != None and nameList[k] in list22array[n][3]:
+                        if nameList[k] in list22array[n][3] and list22array[n][m] != None and str(
+                                list22array[n][11]) != "已取消":
                             iNo = iNo + 1
                             taskStr = taskStr + str(iNo) + "*" + str(list22array[n][1]) + "*" + str(
                                 list22array[n][2]) + "*" + str(format(list22array[n][m], '.0%')) + "\n"
@@ -110,8 +111,8 @@ def Array2DailyString4QYWX(list22array, projectList, nameList, txt_path):
                     for p in range(len(projectList)):
                         taskStr = ""
                         for n in range(2, len(list22array)):
-                            if list22array[n][m] != None and nameList[k] in list22array[n][3] and projectList[p] in \
-                                    list22array[n][1]:
+                            if projectList[p] in list22array[n][1] and nameList[k] in list22array[n][3] and \
+                                    list22array[n][m] != None and str(list22array[n][11]) != "已取消":
                                 iNo = iNo + 1
                                 taskStr = taskStr + str(iNo) + "*" + str(list22array[n][1]) + "*" + str(
                                     list22array[n][2]) + "*" + str(format(list22array[n][m], '.0%')) + "\n"
@@ -139,7 +140,8 @@ def Array2DailyString4YDNote(list22array, name):
                 iNo = 0
                 taskStr = ""
                 for n in range(2, len(list22array)):
-                    if list22array[n][m] != None and name in str(list22array[n][3]):
+                    if list22array[n][m] != None and name in str(list22array[n][3]) and str(
+                            list22array[n][11]) != "已取消":
                         iNo = iNo + 1
                         taskStr = taskStr + str(iNo) + "*" + str(list22array[n][1]) + "*" + str(
                             list22array[n][2]) + "*" + str(format(list22array[n][m], '.0%')) + "\n"
@@ -173,7 +175,7 @@ def Array2WeeklyString(thisweekly, tw2array, nextweekly, nw2array, projectList, 
             iNo = 0
             projtask = ""
             for n in range(2, len(tw2array)):
-                if projectList[p] in tw2array[n][1]:
+                if projectList[p] in tw2array[n][1] and str(tw2array[n][11]) != "已取消":
                     iNo = iNo + 1
                     for k in range(4, 11):
                         if tw2array[n][k] != None:
