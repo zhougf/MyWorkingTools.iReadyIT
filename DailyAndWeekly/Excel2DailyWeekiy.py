@@ -68,11 +68,12 @@ def Excel22array(excel_path, sheetTitle):
     return list22array
 
 
-# 将计划任务的二维数组转化为每个人的当天工作列表和全部当天任务保存到制定位置的文件中
-def Array2DailyString(list22array, nameList, txt_path):
+# 将计划任务的二维数组转化为每个人的当天/指定日期工作列表和全部当天任务保存到制定位置的文件中
+def Array2DailyString(todayStr, list22array, nameList, txt_path):
     dailyString = ""
     allDailyString = ""
-    todayStr = str(time.strftime('%Y-%m-%d', time.localtime(time.time())))
+    if todayStr == "":
+        todayStr = str(time.strftime('%Y-%m-%d', time.localtime(time.time())))
     dateMark = "*" + todayStr + "*"
     if list22array != [] and nameList != []:
         for m in range(4, 11):
@@ -98,9 +99,10 @@ def Array2DailyString(list22array, nameList, txt_path):
 
 
 # 将二维数组转化为用于填写企业微信日报的文本
-def Array2DailyString4QYWX(list22array, projectList, nameList, txt_path):
+def Array2DailyString4QYWX(todayStr, list22array, projectList, nameList, txt_path):
     allDailyString = ""
-    todayStr = str(time.strftime('%Y-%m-%d', time.localtime(time.time())))
+    if todayStr == "":
+        todayStr = str(time.strftime('%Y-%m-%d', time.localtime(time.time())))
     dateMark = "*" + todayStr + "*"
     if list22array != [] and nameList != []:
         for m in range(4, 11):
@@ -130,9 +132,10 @@ def Array2DailyString4QYWX(list22array, projectList, nameList, txt_path):
 
 
 # 将二维数组转化为用于同步到有道笔记的日报文本
-def Array2DailyString4YDNote(list22array, name):
+def Array2DailyString4YDNote(todayStr, list22array, name):
     dailyString = ""
-    todayStr = str(time.strftime('%Y-%m-%d', time.localtime(time.time())))
+    if todayStr == "":
+        todayStr = str(time.strftime('%Y-%m-%d', time.localtime(time.time())))
     dateMark = "*" + todayStr + "*"
     if list22array != [] and name != "":
         for m in range(4, 11):
@@ -205,23 +208,24 @@ if __name__ == "__main__":
     sys.setdefaultencoding('utf-8')
     os.environ['NLS_LANG'] = 'Simplified Chinese_CHINA.ZHS16GBK'
 
+    todayStr = ""
     projectList = ['计划与管理', '技能和业务培训', '海尔项目', '三机O2O', '北汽二期', '摩根华鑫', '瑞穗银行', '宝钢气体', '贝克曼MS-Flow']
-    nameList = ['白明晨', '曹珊', '丛震', '董杰', '李茂清', '陶仙', '王虎林', '王羽超', '杨彦刚', '周光甫']
-    excel_path = "/Users/michealzhou/MyDriver/工作/06部门管理/02工作计划与汇报/周报/上海项目计划与周报-20200413.xlsx"  # 设置Excel文件路径
+    nameList = ['白明晨', '曹珊', '丛震', '董杰', '段语', '高思佳', '李茂清', '陶仙', '王虎林', '王羽超', '杨彦刚', '周光甫']
+    excel_path = "/Users/michealzhou/MyDriver/工作/06部门管理/02工作计划与汇报/周报/上海项目计划与周报-20200420.xlsx"  # 设置Excel文件路径
     txt_path = "/Users/michealzhou/Desktop/"  # 设置text文件路径
 
     try:
         thisweekSheetname = GetSheetName("this")
         # nextweekSheetname = GetSheetName("next")
-        # thisweekSheetname = "2020.04第二周"
-        # nextweekSheetname = "2020.04第三周"
+        # thisweekSheetname = "2020.04第三周"
+        # nextweekSheetname = "2020.04第四周"
         tw2array = Excel22array(excel_path, thisweekSheetname)
         # nw2array = Excel22array(excel_path, nextweekSheetname)
 
-        Array2DailyString4QYWX(tw2array, projectList, nameList, txt_path)
-        print(Array2DailyString4YDNote(tw2array, "周光甫"))
+        Array2DailyString4QYWX(todayStr, tw2array, projectList, nameList, txt_path)
+        print(Array2DailyString4YDNote(todayStr, tw2array, "周光甫"))
 
-        # Array2DailyString(tw2array, nameList, txt_path)
+        # Array2DailyString(todayStr, tw2array, nameList, txt_path)
         # Array2WeeklyString(thisweekSheetname, tw2array, nextweekSheetname, nw2array, projectList, txt_path)
 
     except Exception as e:
