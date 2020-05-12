@@ -11,7 +11,12 @@
 @See:
 """
 
-import datetime, time, io, sys, os, traceback
+import sys
+# reload(sys)
+# sys.setdefaultencoding('utf-8')
+import importlib
+importlib.reload(sys)
+import datetime, time, io, os, traceback
 from math import ceil
 from openpyxl import *
 
@@ -157,7 +162,7 @@ def Array2DailyString4YDNote(todayStr, list22array, name):
 # 将整理后的日报文字写到特定的文件里
 def Write2DailyFile(txt_path_and_filename, dailyString):
     with io.open(txt_path_and_filename, "wb") as txt:
-        txt.writelines(dailyString)
+        txt.write(dailyString.encode())
 
 
 # 将二维数组中有用的信息转化为周报内容并保存到文件中
@@ -204,26 +209,24 @@ def Array2WeeklyString(thisweekly, tw2array, nextweekly, nw2array, projectList, 
 
 # 程序执行的入口
 if __name__ == "__main__":
-    reload(sys)
-    sys.setdefaultencoding('utf-8')
     os.environ['NLS_LANG'] = 'Simplified Chinese_CHINA.ZHS16GBK'
 
     todayStr = ""
     projectList = ['计划与管理', '技能和业务培训', '海尔项目', '三机O2O', '北汽二期', '摩根华鑫', '瑞穗银行', '宝钢气体', '贝克曼MS-Flow']
-    nameList = ['白明晨', '曹珊', '丛震', '董杰', '段语', '高思佳', '李茂清', '陶仙', '王虎林', '王羽超', '杨彦刚', '周光甫']
-    excel_path = "/Users/michealzhou/MyDriver/工作/06部门管理/02工作计划与汇报/周报/上海项目计划与周报-20200420.xlsx"  # 设置Excel文件路径
-    txt_path = "/Users/michealzhou/Desktop/"  # 设置text文件路径
+    nameList = ['白明晨', '曹珊', '丛震', '董杰', '段语', '高思佳', '高兴', '李茂清', '陶仙', '王虎林', '王明', '王羽超', '夏涛', '杨彦刚', '周光甫']
+    excel_path = "/Users/michealzhou/MyDriver/工作/06部门管理/02工作计划与汇报/周报/上海项目计划与周报.xlsx"  # 设置Excel文件路径
+    txt_path = "/Users/michealzhou/MyDriver/TEMP/WorkReport/"  # 设置text文件路径
 
     try:
         thisweekSheetname = GetSheetName("this")
         # nextweekSheetname = GetSheetName("next")
-        # thisweekSheetname = "2020.04第三周"
-        # nextweekSheetname = "2020.04第四周"
+        # thisweekSheetname = "2020.05第二周"
+        # nextweekSheetname = "2020.05第三周"
         tw2array = Excel22array(excel_path, thisweekSheetname)
         # nw2array = Excel22array(excel_path, nextweekSheetname)
 
         Array2DailyString4QYWX(todayStr, tw2array, projectList, nameList, txt_path)
-        print(Array2DailyString4YDNote(todayStr, tw2array, "周光甫"))
+        # print(Array2DailyString4YDNote(todayStr, tw2array, "周光甫"))
 
         # Array2DailyString(todayStr, tw2array, nameList, txt_path)
         # Array2WeeklyString(thisweekSheetname, tw2array, nextweekSheetname, nw2array, projectList, txt_path)
