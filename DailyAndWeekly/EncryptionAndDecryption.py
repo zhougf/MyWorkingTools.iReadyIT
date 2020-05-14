@@ -11,12 +11,13 @@
 @See:
 """
 
-import binascii
+
+import binascii, sys
 # from Crypto import Random
 from Crypto.Cipher import AES
 
 
-class EncryptionAndDecryption:
+class EncryptionAndDecryption(object):
     def __init__(self, key, iv, mode=AES.MODE_CFB):
         # MODE_CFB为加密模式
         self.key = self.PadKey(key)
@@ -35,13 +36,13 @@ class EncryptionAndDecryption:
     # 加密内容需要长达16位字符，所以进行空格拼接
     def PadText(self, text):
         while len(text) % AES.block_size != 0:
-            text += ' '
+            text += str.encode(' ')
         return text
 
     # 加密密钥需要长达16位字符，所以进行空格拼接
     def PadKey(self, key):
         while len(key) % AES.block_size != 0:
-            key += ' '
+            key += str.encode(' ')
         return key
 
     def Encryption(self, text):
@@ -49,7 +50,7 @@ class EncryptionAndDecryption:
         # 加密的字符需要转换为bytes
         aes = AES.new(self.key, self.mode, self.iv)
         # 密文生成器,MODE_CFB为加密模式
-        result = self.iv + aes.encrypt(self.PadText(text))
+        result = aes.encrypt(self.PadText(text))
         # 附加上iv值是为了在解密时找到在加密时用到的iv
         return binascii.b2a_hex(result)  # 将二进制密文转换为16机制显示
 
@@ -57,16 +58,18 @@ class EncryptionAndDecryption:
     def Decryption(self, encrypt_msg):
         aes = AES.new(self.key, self.mode, self.iv)
         # 解密时必须重新创建新的密文生成器
-        return aes.decrypt(binascii.a2b_hex(encrypt_msg)[AES.block_size:]).rstrip(' ')
+        result = str(aes.decrypt(binascii.a2b_hex(encrypt_msg)[AES.block_size:])).rstrip(' ')
+        return result
 
 
 if __name__ == "__main__":
-    key = b"iReadyIT"
-    iv = '1234567890123456'
+    key = b'iReadyIT'
+    iv = b'1234567890123456'
     # 指定的向量，必须是16字节长度
     pc = EncryptionAndDecryption(key, iv)
     # 初始化密钥
-    data = ('测试一下，我是明文。')
-    e = pc.Encryption(data)
+    data = "测试一下，我是明文。"
+    e = pc.Encryption(data.encode('utf-8'))
     d = pc.Decryption(e)
-    print "加密Key是：" + key, "\n明文是：" + d, "\n密文是：" + e
+    print(sys.getdefaultencoding())
+    print("加密Key是：" + str(key), "\n明文是：" + d, "\n密文是：" + str(e))
