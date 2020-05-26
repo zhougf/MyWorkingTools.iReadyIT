@@ -11,8 +11,9 @@
 @See:
 """
 
-
-import binascii, sys
+import binascii  # , sys, os, importlib
+# importlib.reload(sys)
+# os.environ['NLS_LANG'] = 'Simplified Chinese_CHINA.ZHS16GBK'
 # from Crypto import Random
 from Crypto.Cipher import AES
 
@@ -27,7 +28,7 @@ class EncryptionAndDecryption(object):
         if iv:
             self.iv = iv
         else:
-            self.iv = '1234567890123456'
+            self.iv = b'1234567890123456'
             # self.iv = Random.new().read(AES.block_size)
             # self.iv = Random.new().read(16)  # 随机向量，必须是16字节长度
         """
@@ -41,8 +42,9 @@ class EncryptionAndDecryption(object):
 
     # 加密密钥需要长达16位字符，所以进行空格拼接
     def PadKey(self, key):
+        key = str.encode(key)
         while len(key) % AES.block_size != 0:
-            key += str.encode(' ')
+            key += b' '
         return key
 
     def Encryption(self, text):
@@ -52,24 +54,23 @@ class EncryptionAndDecryption(object):
         # 密文生成器,MODE_CFB为加密模式
         result = aes.encrypt(self.PadText(text))
         # 附加上iv值是为了在解密时找到在加密时用到的iv
-        return binascii.b2a_hex(result)  # 将二进制密文转换为16机制显示
+        return binascii.b2a_hex(result)  # 将二进制密文转换为16进制显示
 
     # 解密后，去掉补足的空格用strip() 去掉
     def Decryption(self, encrypt_msg):
         aes = AES.new(self.key, self.mode, self.iv)
         # 解密时必须重新创建新的密文生成器
-        result = str(aes.decrypt(binascii.a2b_hex(encrypt_msg)[AES.block_size:])).rstrip(' ')
-        return result
+        result = aes.decrypt(binascii.a2b_hex(encrypt_msg)).rstrip(b' ')
+        return bytes.decode(result)
 
 
 if __name__ == "__main__":
-    key = b'iReadyIT'
+    key = 'iReadyIT'
     iv = b'1234567890123456'
     # 指定的向量，必须是16字节长度
     pc = EncryptionAndDecryption(key, iv)
     # 初始化密钥
     data = "测试一下，我是明文。"
-    e = pc.Encryption(data.encode('utf-8'))
+    e = bytes.decode(pc.Encryption(data.encode('utf-8')))
     d = pc.Decryption(e)
-    print(sys.getdefaultencoding())
-    print("加密Key是：" + str(key), "\n明文是：" + d, "\n密文是：" + str(e))
+    print("加密Key是：" + key, "\n明文是：" + d, "\n密文是：" + e)
